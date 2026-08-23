@@ -48,30 +48,31 @@ npx supabase functions deploy calculate-elo generate-session update-athlete proc
 
 ## 🌐 Play it now (web)
 
-**https://sprintdevz.github.io/sprint/** — the live web build, deployed to
-GitHub Pages. Hit **TRY THE DEMO INSTANTLY** on the welcome screen to jump
-in as a seeded athlete (Alex Rivera · ELO 1247 · GOLD — with a 7-day streak
-and a real weakness analysis), or sign in with any email to run the full
-onboarding → assessment → ELO reveal loop.
+**https://sprintdevz.github.io/** — the live web build, deployed to GitHub
+Pages (user site, origin root — so routing and deep links work naturally).
+Hit **TRY THE DEMO INSTANTLY** on the welcome screen to jump in as a seeded
+athlete (Alex Rivera · ELO 1247 · GOLD — with a 7-day streak and a real
+weakness analysis), or sign in with any email to run the full onboarding →
+assessment → ELO reveal loop.
 
 Everything is computed by the same engines used in production; only where
-rows live changes (your browser, via localStorage).
+rows live changes (your browser, via localStorage). The old
+`sprintdevz.github.io/sprint/` path now redirects here.
 
 ### Rebuilding the web demo
 
 ```bash
 npx expo export --platform web --output-dir dist-web
-node scripts/fix-gh-pages-paths.mjs   # makes asset URLs relative for the /sprint/ subpath
 rm -rf /tmp/gh && mkdir -p /tmp/gh && cp -r dist-web/. /tmp/gh && touch /tmp/gh/.nojekyll
-cd /tmp/gh && git init -q -b gh-pages && git add -A && git commit -qm deploy \
-  && git remote add origin https://github.com/sprintdevz/sprint.git \
-  && git push -f -q origin gh-pages
+cd /tmp/gh && git init -q -b main && git add -A && git commit -qm deploy \
+  && git remote add origin https://github.com/sprintdevz/sprintdevz.github.io.git \
+  && git push -f -q origin main
 ```
 
-> Note: deep-link reloads on the subpath aren't served by GitHub Pages;
-> click **“TRY THE DEMO”** at the root URL and navigate in-app — the SPA
-> handles all routes client-side. For a root-domain deploy (Vercel/Netlify)
-> the export works without path rewriting.
+> For a **project-subpath** deployment (e.g. Vercel/Netlify/GH Pages at
+> `/repo/`) run `node scripts/fix-gh-pages-paths.mjs` after exporting to
+> make asset URLs relative. Note: expo-router SDK 57's static export has no
+> working base-path support, so origin-root hosting is the reliable option.
 
 ## Scripts
 
