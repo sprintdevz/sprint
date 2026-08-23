@@ -1,16 +1,26 @@
 import { Text, StyleSheet, View } from 'react-native';
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/hooks/useTheme';
 import { Button } from '@/components/ui/Button';
 import { Cheetah } from '@/components/mascot/Cheetah';
+import { isDemoMode, demoSignIn } from '@/services/supabase';
+import { markOnboardingComplete } from '@/features/onboarding/persistence';
 import { APP_NAME, APP_TAGLINE } from '@/constants/config';
 import { type } from '@/constants/typography';
 
-/** The first screen — brand + CTA. */
+/** The first screen — brand + CTA. In demo mode: one-tap play. */
 export default function WelcomeScreen() {
   const { spacing } = useTheme();
   const insets = useSafeAreaInsets();
+  const router = useRouter();
+  const demo = isDemoMode();
+
+  const startDemo = async () => {
+    await demoSignIn();
+    await markOnboardingComplete();
+    router.replace('/(tabs)');
+  };
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + 32, paddingBottom: insets.bottom + 24 }]}>
@@ -21,12 +31,26 @@ export default function WelcomeScreen() {
       </View>
 
       <View style={styles.actions}>
-        <Link href="/(auth)/sign-up" asChild>
-          <Button label="CREATE ACCOUNT" size="lg" onPress={() => {}} />
-        </Link>
-        <Link href="/(auth)/sign-in" asChild>
-          <Button label="I ALREADY HAVE AN ACCOUNT" variant="secondary" size="md" onPress={() => {}} />
-        </Link>
+        {demo ? (
+          <>
+            <Button label="TRY THE DEMO INSTANTLY" size="lg" onPress={() => void startDemo()} />
+            <Text style={[type.caption, styles.demoNote]}>
+              DEMO MODE — PLAY WITH A SEEDED ATHLETE. EVERYTHING STAYS IN YOUR BROWSER.
+            </Text>
+            <Link href="/(auth)/sign-in" asChild>
+              <Button label="SIGN IN WITH ANY EMAIL" variant="secondary" size="md" onPress={() => {}} />
+            </Link>
+          </>
+        ) : (
+          <>
+            <Link href="/(auth)/sign-up" asChild>
+              <Button label="CREATE ACCOUNT" size="lg" onPress={() => {}} />
+            </Link>
+            <Link href="/(auth)/sign-in" asChild>
+              <Button label="I ALREADY HAVE AN ACCOUNT" variant="secondary" size="md" onPress={() => {}} />
+            </Link>
+          </>
+        )}
         <Text style={[type.caption, styles.footnote, { marginTop: spacing.md }]}>
           RATE YOUR SKILLS · TRAIN WEAKNESSES · CLIMB THE LEAGUE
         </Text>
@@ -66,5 +90,11 @@ const styles = StyleSheet.create({
     color: '#7683A8',
     textAlign: 'center',
     fontSize: 10,
+  },
+  demoNote: {
+    color: '#FFB020',
+    textAlign: 'center',
+    fontSize: 10,
+    letterSpacing: 0.6,
   },
 });

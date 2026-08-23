@@ -7,15 +7,19 @@ import { Platform } from 'react-native';
  * (src/features/notifications/scheduler.ts + supabase/functions/notify-users).
  */
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: false,
-    shouldSetBadge: false,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
+try {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: false,
+      shouldSetBadge: false,
+      shouldShowBanner: true,
+      shouldShowList: true,
+    }),
+  });
+} catch {
+  // web / unsupported — notifications degrade gracefully
+}
 
 export type ReminderType =
   | 'session_reminder'

@@ -15,6 +15,7 @@ import { formatRating } from '@/utils/formatting';
 import { trackEvent } from '@/services/analytics';
 import { success as hapticSuccess } from '@/services/haptics';
 import { useOnboardingStore } from '@/features/onboarding/store';
+import { finalizeOnboardingWithAssessment } from '@/features/onboarding/api';
 import { type } from '@/constants/typography';
 
 /** THE reveal — "YOUR SPRINT ELO". Excited cheetah, hero number, next steps. */
@@ -36,6 +37,11 @@ export default function AssessmentResultsScreen() {
     void consumeStagedAssessmentResult().then((r) => {
       setResult(r);
       if (r) {
+        // Persist athlete + ratings + skills (demo or real backend).
+        const data = useOnboardingStore.getState().data;
+        if (data.sport) {
+          void finalizeOnboardingWithAssessment(data, r).catch(() => undefined);
+        }
         trackEvent('assessment_completed', { rating: r.overallRating });
         trackEvent('elo_assigned', { rating: r.overallRating });
         void hapticSuccess();

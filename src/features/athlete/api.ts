@@ -28,6 +28,17 @@ export async function fetchAthleteOverview(userId: string): Promise<AthleteOverv
   const overallRow = (ratings ?? []).find((r) => r.scope === 'overall');
   const sportRow = (ratings ?? []).find((r) => r.scope === 'sport');
 
+  const [streakResult, weeklySessions, xpSessions] = await Promise.all([
+    client.from('streaks').select('current, longest, last_active').eq('user_id', userId).maybeSingle(),
+    client
+      .from('sessions')
+      .select('id', { count: 'exact', head: true })
+      .eq('athlete_id', athlete.id)
+      .eq('status', 'completed')
+      .gte('completed_at', new Date(Date.now() - 7 * 86_400_000).toISOString()),
+    client.from('sessions').select('xp').eq('athlete_id', athlete.id).eq('status', 'completed'),
+  ]);
+
   const sport = getSport(athlete.sport);
   const nameFor = (code: string) => sport.skills.find((s) => s.code === code)?.name ?? code;
 
@@ -52,9 +63,15 @@ export async function fetchAthleteOverview(userId: string): Promise<AthleteOverv
       attempts: s.attempts,
       personalBest: s.personal_best,
     })),
-    streak: null,
-    weeklySessionsCompleted: 0,
-    xpTotal: 0,
+    streak: streakResult?.data
+      ? {
+          current: Number(streakResult.data.current ?? 0),
+          longest: Number(streakResult.data.longest ?? 0),
+          lastActive: (streakResult.data.last_active as string | null) ?? null,
+        }
+      : null,
+    weeklySessionsCompleted: weeklySessions.count ?? 0,
+    xpTotal: (xpSessions.data ?? []).reduce((acc, s) => acc + Number(s.xp ?? 0), 0),
   };
 
   await cacheSet(CACHE_KEYS.athlete, overview);
