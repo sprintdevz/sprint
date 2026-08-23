@@ -1,26 +1,37 @@
 {
   "expo": {
-    "name": "Sprint",
-    "slug": "Sprint",
+    "name": "SPRINT",
+    "slug": "sprint",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "sprint",
     "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/images/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0B1B33"
+    },
     "ios": {
-      "icon": "./assets/expo.icon"
+      "supportsTablet": true,
+      "bundleIdentifier": "com.sprintdevz.sprint",
+      "infoPlist": {
+        "UIBackgroundModes": ["remote-notification"]
+      }
     },
     "android": {
+      "package": "com.sprintdevz.sprint",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "backgroundColor": "#0B1B33",
+        "foregroundImage": "./assets/images/android-icon-foreground.png"
       },
+      "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },
     "web": {
       "output": "static",
+      "bundler": "metro",
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
@@ -28,9 +39,23 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
+          "backgroundColor": "#0B1B33",
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "imageWidth": 110
+        }
+      ],
+      "expo-secure-store",
+      [
+        "expo-notifications",
+        {
+          "color": "#2E6BFF",
+          "defaultChannel": "sprint-updates"
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "SPRINT uses the camera to record and analyze your training form."
         }
       ]
     ],

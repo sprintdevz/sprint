@@ -1,0 +1,14 @@
+/** @type {import('jest').Config} */
+module.exports = {
+  preset: 'jest-expo',
+  testMatch: ['<rootDir>/tests/**/*.test.ts'],
+  testPathIgnorePatterns: ['/node_modules/', '/example/'],
+  moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/src/$1',
+    '^@/assets/(.*)$': '<rootDir>/assets/$1',
+  },
+  transformIgnorePatterns: [
+    'node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@sentry/react-native|native-base|react-native-svg)',
+  ],
+  collectCoverageFrom: ['src/features/**/*.{ts,tsx}', 'src/sports/**/*.{ts,tsx}'],
+};

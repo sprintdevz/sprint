@@ -1,56 +1,105 @@
-# Welcome to your Expo app 👋
+# SPRINT 🏃⚡
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+**Athletic skill progression, gamified.**
 
-## Get started
+SPRINT measures your abilities as an athlete, computes a real **ELO-style
+rating** (Glicko-1), finds your **biggest weakness**, generates
+**personalized training sessions**, and turns improvement into a game —
+complete with a cheetah mascot named Cheetah, leagues, streaks, seasons,
+achievements and leaderboards.
 
-1. Install dependencies
+> Three questions, answered on every launch:
+> **Where am I? · What is holding me back? · What should I do next?**
 
-   ```bash
-   npm install
-   ```
+<img src="docs/assets/hero.png" width="120" alt="SPRINT mascot" />
 
-2. Start the app
+## Stack
 
-   ```bash
-   npx expo start
-   ```
+- **Expo SDK 57 + React Native + TypeScript** (strict, no `any`)
+- **Expo Router** · **Zustand** · **TanStack Query**
+- **Supabase** — PostgreSQL, Auth, Storage, Edge Functions
+- **Reanimated** · **Gesture Handler** · **Expo Haptics/Notifications/Camera/SecureStore**
+- **React Hook Form + Zod** for forms, **react-native-svg** for the mascot
+- Jest (jest-expo) for tests
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Quick start
 
 ```bash
-npm run reset-project
+npm install
+# 1. Configure Supabase (see .env.example)
+cp .env.example .env
+#    EXPO_PUBLIC_SUPABASE_URL=…
+#    EXPO_PUBLIC_SUPABASE_ANON_KEY=…
+npm start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### Local Supabase
 
-### Other setup steps
+```bash
+npx supabase start
+npx supabase db reset        # schema + seed + demo athlete (demo@sprint.dev / demo1234)
+npx supabase functions deploy calculate-elo generate-session update-athlete process-assessment
+```
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+> No Supabase yet? The app still boots: auth screens show a friendly
+> "connect Supabase" state, and the training/ELO engines run fully in-app.
 
-## Learn more
+## Scripts
 
-To learn more about developing your project with Expo, look at the following resources:
+```bash
+npm run start         # dev server
+npm run android       # Android emulator
+npm run ios           # iOS simulator (macOS)
+npm run typecheck     # tsc --noEmit
+npm test              # jest (unit + integration)
+npm run lint          # eslint
+npm run supabase:start
+npm run supabase:db:reset
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Project map
 
-## Join the community
+```
+app/            routes (auth · onboarding · tabs · session · assessment · compete …)
+src/features/   per-domain: auth, onboarding, athlete, assessment, training, elo,
+                skills, competition, achievements, notifications, subscription
+src/sports/     sport abstraction + basketball (full), soccer/tennis (skeleton)
+src/components/ ui · athlete · training · competition · progression · mascot (SVG cheetah)
+supabase/       migrations · seed.sql · edge functions
+tests/          unit + integration (elo, assessment, training, progression)
+docs/           architecture · elo-system · sport-system · training-engine · database
+```
 
-Join our community of developers creating universal apps.
+## Product pillars
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+| Pillar | Implementation |
+| --- | --- |
+| ELO | Glicko-1 + uncertainty, benchmark matches, anti-farm/anti-punishment (`src/features/elo`) |
+| Weakness engine | `analyzeWeakness` — gap × skill-weight (`features/athlete/calculations`) |
+| Personal sessions | `selectFocus` + `generateSession` — highest improvement/min (`features/training`) |
+| Sports | generic `SportConfig` — add soccer/tennis without touching the app (`src/sports`) |
+| Competition | leagues, seasons, weekly challenges, global/friends/local boards |
+| Monetization | Free/Pro from config (`constants/config.ts`), paywall screen |
+| Offline | AsyncStorage snapshots, idempotent session submission (plan_token) |
+| Security | RLS everywhere, server-side rating + achievement validation |
+
+## Screens (routes)
+
+Welcome · Sign in/up · Onboarding (sport → profile → experience → goals →
+training → equipment → assessment → ELO reveal → first session) · Home
+dashboard · Train · Progress skill tree · Compete (leaderboards, seasons,
+challenges, friends) · Profile/stats/achievements · Session runner
+(challenge/rest/results/rating-change) · Skills (detail/drills/history) ·
+Settings (notifications/privacy/subscription/account).
+
+## Roadmap highlights
+
+- StoreKit / Play Billing integration behind `subscription/api.ts`
+- PostHog/Amplitude behind `services/analytics.ts` (console today)
+- Apple Health / Google Fit behind `services/health.ts`
+- Video upload (Pro) wired to `services/storage.ts` + `video_uploads`
+- EAS builds via `eas.json` (dev/preview/production channels)
+
+---
+
+Built with ❤️ for athletes who want to watch a number go up.
